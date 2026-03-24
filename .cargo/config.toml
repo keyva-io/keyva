@@ -1,6 +1,0 @@
-# Local development: override git deps to use local checkouts.
-# Remove or comment out to build against published versions.
-[patch."https://github.com/keyva-io/commons.git"]
-keyva-core = { path = "../commons/keyva-core" }
-keyva-crypto = { path = "../commons/keyva-crypto" }
-keyva-storage = { path = "../commons/keyva-storage" }
