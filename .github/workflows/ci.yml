@@ -125,19 +125,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }} -p keyva -p keyva-auth -p keyva-cli
+        run: cargo build --release --target ${{ matrix.target }} -p keyva -p keyva-cli
 
       - name: Package
         run: |
           mkdir -p dist
-          # keyva: server + cli bundled (like redis + redis-cli)
           cp target/${{ matrix.target }}/release/keyva dist/
           cp target/${{ matrix.target }}/release/keyva-cli dist/
           cd dist && tar czf keyva-${{ github.ref_name }}-${{ matrix.target }}.tar.gz keyva keyva-cli && cd ..
-          # keyva-auth: standalone
-          cp target/${{ matrix.target }}/release/keyva-auth dist/
-          cd dist && tar czf keyva-auth-${{ github.ref_name }}-${{ matrix.target }}.tar.gz keyva-auth && cd ..
-          rm dist/keyva dist/keyva-cli dist/keyva-auth
+          rm dist/keyva dist/keyva-cli
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
@@ -158,8 +154,6 @@ jobs:
         include:
           - image: keyva
             target: keyva
-          - image: keyva-auth
-            target: keyva-auth
           - image: keyva-cli
             target: keyva-cli
     steps:

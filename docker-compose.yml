@@ -3,7 +3,6 @@ services:
     image: ghcr.io/keyva-io/keyva:latest
     ports:
       - "6399:6399"
-      - "8080:8080"
     environment:
       - KEYVA_MASTER_KEY=${KEYVA_MASTER_KEY:?Set KEYVA_MASTER_KEY (64 hex chars)}
       - RUST_LOG=info
@@ -13,17 +12,5 @@ services:
     command: ["--config", "/config.toml"]
     restart: unless-stopped
 
-  keyva-auth:
-    image: ghcr.io/keyva-io/keyva-auth:latest
-    ports:
-      - "4001:4001"
-    environment:
-      - KEYVA_MASTER_KEY=${KEYVA_MASTER_KEY:?Set KEYVA_MASTER_KEY (64 hex chars)}
-      - RUST_LOG=info
-    volumes:
-      - keyva-auth-data:/auth-data
-    restart: unless-stopped
-
 volumes:
   keyva-data:
-  keyva-auth-data:

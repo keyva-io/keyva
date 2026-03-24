@@ -3,7 +3,6 @@ use std::time::Duration;
 
 use anyhow::Context;
 use keyva_protocol::CommandDispatcher;
-use keyva_rest::AppState;
 use tokio::net::TcpListener;
 use tokio::sync::watch;
 use tokio::task::JoinSet;
@@ -12,37 +11,13 @@ use tokio_rustls::TlsAcceptor;
 use crate::config::ServerConfig;
 use crate::connection::handle_connection;
 
-/// Run the TCP and REST servers until a shutdown signal is received.
+/// Run the TCP server until a shutdown signal is received.
 pub async fn run(
     config: &ServerConfig,
     dispatcher: Arc<CommandDispatcher>,
-    metrics_handle: metrics_exporter_prometheus::PrometheusHandle,
+    _metrics_handle: metrics_exporter_prometheus::PrometheusHandle,
     mut shutdown_rx: watch::Receiver<bool>,
 ) -> anyhow::Result<()> {
-    // Start REST server if configured.
-    let rest_handle = if let Some(rest_addr) = config.rest_bind {
-        let state = AppState {
-            dispatcher: Arc::clone(&dispatcher),
-            metrics_handle,
-        };
-        let router = keyva_rest::build_router(state);
-        let rest_listener = tokio::net::TcpListener::bind(rest_addr)
-            .await
-            .with_context(|| format!("binding REST on {rest_addr}"))?;
-        tracing::info!(addr = %rest_addr, "REST API listening");
-        let srx = shutdown_rx.clone();
-        Some(tokio::spawn(async move {
-            axum::serve(rest_listener, router)
-                .with_graceful_shutdown(async move {
-                    let mut rx = srx;
-                    let _ = rx.wait_for(|v| *v).await;
-                })
-                .await
-                .ok();
-        }))
-    } else {
-        None
-    };
 
     let listener = TcpListener::bind(config.bind)
         .await
@@ -166,11 +141,6 @@ pub async fn run(
                 break;
             }
         }
-    }
-
-    // Wait for REST server to shut down.
-    if let Some(handle) = rest_handle {
-        let _ = handle.await;
     }
 
     tracing::info!("server stopped");

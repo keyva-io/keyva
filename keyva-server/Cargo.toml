@@ -13,7 +13,6 @@ path = "src/main.rs"
 keyva-core.workspace = true
 keyva-crypto.workspace = true
 keyva-protocol.workspace = true
-keyva-rest.workspace = true
 keyva-storage.workspace = true
 
 tokio.workspace = true
@@ -24,7 +23,6 @@ toml.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 anyhow.workspace = true
-axum.workspace = true
 ring.workspace = true
 rustls.workspace = true
 rustls-pki-types.workspace = true
